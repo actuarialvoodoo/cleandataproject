@@ -26,6 +26,8 @@ if(!file.exists(init_dir)){
      f_con<-file("lastdownload.log",open="wt")
      writeLines(paste("Date Downloaded:",DateDownloaded),con=f_con)
      close(f_con)
+}else{
+     cat("Data already exists. Skipping Download.\n")
 }
 
 ## IMPORT DATA
