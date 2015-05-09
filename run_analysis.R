@@ -12,15 +12,16 @@ init_dir<-"UCI HAR Dataset"
 if(!file.exists(init_dir)){
      # Only download data if it is missing    
      DateDownloaded<-Sys.time()
-
-     cat("Downloading File...")
+     process_str<-"Downloading File..."
+     cat(process_str)
      download.file(fileUrl,destfile="./smartphone.zip",method="curl", quiet=TRUE)
-     cat(paste(c(rep(".",20)," DONE.\n"),sep="",collapse=""))
+     cat(paste(c(rep(".",50-nchar(process_str))," DONE.\n"),sep="",collapse=""))
      
-     cat("Unzipping File...")
+     process_str<-"Unzipping File..."
+     cat(process_str)
      unzip("./smartphone.zip")
      file.remove("smartphone.zip")
-     cat(paste(c(rep(".",22)," DONE.\n"),sep="",collapse=""))
+     cat(paste(c(rep(".",50 - nchar(process_str))," DONE.\n"),sep="",collapse=""))
      
      ## Create Log file to record date downloaded.
      f_con<-file("lastdownload.log",open="wt")
@@ -31,6 +32,21 @@ if(!file.exists(init_dir)){
 }
 
 ## IMPORT DATA
+# Load features names and activity lables
+process_str<-"Importing Features..."
+cat(process_str)
+fPath<-file.path(init_dir,"features.txt")
+features<-read.table(fPath,sep=" ")
+colnames(features)<-c("ColNames")
+cat(paste(c(rep(".",50 - nchar(process_str))," DONE.\n"),sep="",collapse=""))
+
+process_str<-"Importing Activity Labels..."
+cat(process_str)
+fPath<-file.path(init_dir,"activity_labels.txt")
+activities<-read.table(fPath, sep=" ")
+colnames(features)<-c("Activity.Code","Activity.Label")
+cat(paste(c(rep(".",50 - nchar(process_str))," DONE.\n"),sep="",collapse=""))
+
 
 ## MERGE DATA
 
