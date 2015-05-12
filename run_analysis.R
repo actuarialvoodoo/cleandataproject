@@ -33,19 +33,8 @@ if(!file.exists(init_dir)){
 
 ## IMPORT DATA
 # Load features names and activity lables
-process_str<-"Importing Features..."
-cat(process_str)
-fPath<-file.path(init_dir,"features.txt")
-features<-read.table(fPath,sep=" ")
-colnames(features)<-c("colnum","colname")
-cat(paste(c(rep(".",50 - nchar(process_str))," DONE.\n"),sep="",collapse=""))
-
-process_str<-"Importing Activity Labels..."
-cat(process_str)
-fPath<-file.path(init_dir,"activity_labels.txt")
-activities<-read.table(fPath, sep=" ")
-colnames(activities)<-c("code","label")
-cat(paste(c(rep(".",50 - nchar(process_str))," DONE.\n"),sep="",collapse=""))
+features<-common_info.load("features.txt",c("colnum","colname"))
+activities<-common_info.load("activty_labels.txt",c("code","label"))
 
 # Load test data
 process_str<-"Importing Test Data..."
@@ -66,8 +55,25 @@ colnames(test_subjects)<-c("subjectcode")
 cat(paste(c(rep(".",50 - nchar(process_str))," DONE.\n"),sep="",collapse=""))
 
 activity_names<-tolower(activities$label[test_activity_codes$activitycode])
+
+# Only use the columns that are means or standard deviations
+use_columns<-grepl("mean\\(\\)|std\\(\\)",colnames(test_measures))
+
+data<-cbind(subject=test_subjects,activity=activity_names,test_measures[use_columns])
 ## MERGE DATA
 
 ## CREATE TIDY DATA SET
 
 ## EXPORT TIDY DATA SET
+
+common_info.load<-function(filename,colnames){
+     
+     process_str<-paste("Importing",filename,"...",collapse="")
+     cat(process_str)
+     fPath<-file.path(init_dir,filename)
+     info<-read.table(fPath,sep=" ")
+     colnames(info)<-colnames
+     cat(paste(c(rep(".",50 - nchar(process_str))," DONE.\n"),sep="",collapse=""))
+     
+}
+
