@@ -7,11 +7,21 @@
 ## ASSUMPTIONS
 fileUrl<-"https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
 init_dir<-"UCI HAR Dataset" 
+outputfile.name<-"tidydata.txt"
+## LOAD DEPENDENCIES
+library(dplyr)
 
-## HELPER FUNCTIONS
+######## DELETE THIS BLOCK BEFORE SUBMISSION
+wd<-"/Users/rthomas/Documents/Coursera/Getting and Cleaning Data/project/"
+setwd(wd)
+#####################################################
+## BEGIN DATA IMPORT FUNCTIONS
+#  Below I define two functions which I use to import data from files in
+# the data set
+
 common_info.load<-function(filename,colnames){
      # This function loads common information which is applicable
-     # to both test and train datasets.
+     # to both test and train datasets 
      
      # BEGIN progress indicator
      process_str<-paste("Importing",filename,"...",collapse="")
@@ -62,8 +72,11 @@ dataset.load<-function(folder){
      cbind(subject=data$subject,activity=activity_names,data$X[,use_columns])
      
 }
+    
+## END DATA IMPORT FUNCTIONS
+###################################################
 
-## Script Execution Starts Here.
+## Main Script Execution Starts Here.
 ## DOWNLOAD DATA
 if(!file.exists(init_dir)){
      # Only download data if it is missing    
@@ -99,14 +112,21 @@ if(!file.exists(init_dir)){
 features<-common_info.load("features.txt",c("colnum","colname"))
 activities<-common_info.load("activity_labels.txt",c("code","label"))
 
-# Load test data
+# LOAD TEST AND TRAIN DATA
 data_test<-dataset.load("test")
 data_train<-dataset.load("train")
+
 ## MERGE DATA
 data_total<-rbind(data_test,data_train)
 rm(data_test,data_train)
 
 ## CREATE TIDY DATA SET
+tidydf<-data_total %>% group_by(subjectcode, activity) %>% summarise_each(funs(mean))
 
 ## EXPORT TIDY DATA SET
+process_str<-"Saving Tidy Data Set..."
+cat(process_str)
 
+write.table(tidydf,file=outputfile.name, row.name=FALSE)
+
+cat(paste(c(rep(".",50 - nchar(process_str))," DONE.\n"),sep="",collapse=""))

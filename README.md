@@ -1,10 +1,8 @@
 # cleandataproject
 
-Data
+This README file explains how to use my run_analysis.R script to download (if necessary)
 
-For both the test and train data sets the following three files are used:
+## Assumptions
 
-	1. X_test.txt - Contains the measurement data, each row is 561 values
-	2. y_test.txt - Contains the activity code for each test
-	3. subject_test.txt - Contains the participant code
 
+## 
