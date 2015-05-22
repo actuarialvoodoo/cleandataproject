@@ -104,8 +104,20 @@ if(!file.exists(init_dir)){
      process_str<-"Unzipping File..."
      cat(process_str)
      
-     unzip("./smartphone.zip")
+     unzip("./smartphone.zip",exdir=init_dir)
      file.remove("smartphone.zip")
+     
+     # This following lines of code ensure that data is downloaded into
+     # the init_dir folder. It's a bit of a hack as I couldn't figure out
+     # how to get unzip to extract to a directory I specified without 
+     # everything winding up in UCI HAR Dataset as a subdirectory of 
+     # init_dir
+     tmp_wd<-getwd()
+     setwd(file.path(init_dir,"UCI HAR Dataset"))
+     file.copy(".","../", recursive = TRUE)
+     setwd("../")
+     unlink("UCI HAR Dataset", recursive=TRUE)
+     setwd(tmp_wd)
      
      # END Unzip and Delete file progress indicator
      cat(paste(c(rep(".",50 - nchar(process_str))," DONE.\n"),sep="",collapse=""))
