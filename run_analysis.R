@@ -8,6 +8,8 @@
 fileUrl<-"https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
 init_dir<-"UCI HAR Dataset" 
 outputfile.name<-"tidydata.txt"
+logfile.name<-"lastdownload.log"
+
 ## LOAD DEPENDENCIES
 library(dplyr)
 
@@ -16,14 +18,19 @@ wd<-"/Users/rthomas/Documents/Coursera/Getting and Cleaning Data/project/"
 setwd(wd)
 #####################################################
 ## BEGIN DATA IMPORT FUNCTIONS
+#
 #  Below I define two functions which I use to import data from files in
-# the data set
+#  the original data set. The common_info.load function is used to load the 
+#  dataset feature names and activity descriptions which are common to both 
+#  the train and test data sets. The dataset.load function is used to combine
+#  the subject, activities, and features for the the train and test data sets
+#  into a dataframe.
 
 common_info.load<-function(filename,colnames){
      # This function loads common information which is applicable
      # to both test and train datasets 
      
-     # BEGIN progress indicator
+     # BEGIN importing progress indicator
      process_str<-paste("Importing",filename,"...",collapse="")
      cat(process_str)
      
@@ -34,7 +41,7 @@ common_info.load<-function(filename,colnames){
      info<-read.table(fPath,sep=" ")
      colnames(info)<-colnames
      
-     # END progress indicator
+     # END importing progress indicator
      cat(paste(c(rep(".",50 - nchar(process_str))," DONE.\n"),sep="",collapse=""))
      info
 }
@@ -55,18 +62,20 @@ dataset.load<-function(folder){
      file.prefix<-c("subject","y","X")
      file.colnames<-list("X"=features$colname,"y"=c("activitycode"),"subject"=c("subjectcode"))
      
+     # BEGIN importing progress indicator
      process_str<-paste("Importing",folder,"Data...",collapse="")
      cat(process_str)
      
      data<-lapply(file.prefix,load.file,folder)
      names(data)<-file.prefix
      
-     # make the activity labels prettier
+     # make the activity labels prettier by making them lower case
      activity_names<-tolower(activities$label[data$y[,1]])
      
      # Only use the columns that are means or standard deviations
      use_columns<-grepl("mean\\(\\)|std\\(\\)",colnames(data$X))
      
+     # END importing progress indicator
      cat(paste(c(rep(".",50 - nchar(process_str))," DONE.\n"),sep="",collapse=""))
      
      cbind(subject=data$subject,activity=activity_names,data$X[,use_columns])
@@ -82,25 +91,27 @@ if(!file.exists(init_dir)){
      # Only download data if it is missing    
      DateDownloaded<-Sys.time()
      
-     # Download file
+     # BEGIN download file progress indicator
      process_str<-"Downloading File..."
      cat(process_str)
      
      download.file(fileUrl,destfile="./smartphone.zip",method="curl", quiet=TRUE)
      
+     # END download file progress indicator
      cat(paste(c(rep(".",50-nchar(process_str))," DONE.\n"),sep="",collapse=""))
      
-     # Unzip and Delete file
+     # BEGIN Unzip and Delete file progress indicator
      process_str<-"Unzipping File..."
      cat(process_str)
      
      unzip("./smartphone.zip")
      file.remove("smartphone.zip")
      
+     # END Unzip and Delete file progress indicator
      cat(paste(c(rep(".",50 - nchar(process_str))," DONE.\n"),sep="",collapse=""))
      
      ## Create Log file to record date downloaded.
-     f_con<-file("lastdownload.log",open="wt")
+     f_con<-file(logfile.name,open="wt")
      writeLines(paste("Date Downloaded:",DateDownloaded),con=f_con)
      close(f_con)
 }else{
@@ -108,7 +119,7 @@ if(!file.exists(init_dir)){
 }
 
 ## IMPORT DATA
-# Load features names and activity lables
+# Load features names and activity labels
 features<-common_info.load("features.txt",c("colnum","colname"))
 activities<-common_info.load("activity_labels.txt",c("code","label"))
 
@@ -120,13 +131,15 @@ data_train<-dataset.load("train")
 data_total<-rbind(data_test,data_train)
 rm(data_test,data_train)
 
-## CREATE TIDY DATA SET
+## CREATE TIDY DATA SET using ever useful dplyr package
 tidydf<-data_total %>% group_by(subjectcode, activity) %>% summarise_each(funs(mean))
 
 ## EXPORT TIDY DATA SET
+# BEGIN saving tidy dataset progess indicator
 process_str<-"Saving Tidy Data Set..."
 cat(process_str)
 
 write.table(tidydf,file=outputfile.name, row.name=FALSE)
 
+# END saving tidy dataset progress indicator 
 cat(paste(c(rep(".",50 - nchar(process_str))," DONE.\n"),sep="",collapse=""))
