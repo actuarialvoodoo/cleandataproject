@@ -1,4 +1,4 @@
-pretty.colnames<-c("meanbodyaccxtime",
+pretty.colnames<-c("subject", "activity", "meanbodyaccxtime",
                    "meanbodyaccytime",
                    "meanbodyaccztime",
                    "stdbodyaccxtime",

@@ -70,7 +70,7 @@ dataset.load<-function(folder){
      names(data)<-file.prefix
      
      # make the activity labels prettier by making them lower case
-     activity_names<-tolower(activities$label[data$y[,1]])
+     activity_names<-tolower(sub("_","",activities$label[data$y[,1]]))
      
      # Only use the columns that are means or standard deviations
      use_columns<-grepl("mean\\(\\)|std\\(\\)",colnames(data$X))
@@ -143,8 +143,12 @@ data_train<-dataset.load("train")
 data_total<-rbind(data_test,data_train)
 rm(data_test,data_train)
 
+## TIDY UP THE COLUMN NAMES
+source("prettycolnames.R")
+names(data_total)<-pretty.colnames
+
 ## CREATE TIDY DATA SET using ever useful dplyr package
-tidydf<-data_total %>% group_by(subjectcode, activity) %>% summarise_each(funs(mean))
+tidydf<-data_total %>% group_by(subject, activity) %>% summarise_each(funs(mean))
 
 ## EXPORT TIDY DATA SET
 # BEGIN saving tidy dataset progess indicator
